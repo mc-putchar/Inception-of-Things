@@ -6,7 +6,6 @@ SERVER_IP = "192.168.56.110"
 Vagrant.configure("2") do |config|
   config.vm.box = BOX
   config.vm.box_version = BOX_VERSION
-  config.vm.synced_folder ".", "/vagrant"
 
   config.vm.provider "libvirt" do |libvirt|
     libvirt.memory = "1024"
@@ -18,11 +17,9 @@ Vagrant.configure("2") do |config|
   config.vm.define SERVER_NAME do |server|
     server.vm.hostname = SERVER_NAME
     server.vm.network :private_network, :ip => SERVER_IP
-    
-    server.vm.provider "libvirt" do |libvirt|
-    end
-    
-    server.vm.provision "shell", privileged: true, path: "scripts/server_setup.sh"
+
+    server.vm.provision "shell", privileged: true, path: "scripts/server_setup.sh", env: {
+      "SERVER_IP" => SERVER_IP
+    }
   end
 end
-
