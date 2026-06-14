@@ -84,7 +84,21 @@ sudo apt-get install qemu-guest-agent git curl ansible
 
 ## P0
 
-#### Mount our project as external filesystem
+#### [Optional] SSH key
+
+To access the VM via SSH, copy your public key contents to the authorized keys file:
+
+```bash
+echo <SSH PUBLIC KEY CONTENTS> >> ~/.ssh/authorized_keys
+```
+
+Now you can access the VM via SSH using your private key:
+
+```bash
+ssh -i <PATH TO PRIVATE KEY> -p 2242 inception@127.0.0.1
+```
+
+#### Mount the project as external filesystem
 
 ```bash
 sudo mount -t 9p -o trans=virtio,version=9p2000.L iot /mnt
@@ -105,11 +119,32 @@ sudo reboot now
 
 ## P1
 
-WIP  
+#### Set up the VM for Kubernetes cluster
 
 ```bash
 cd ~/mnt/p1
 vagrant up
+```
+
+#### Validate paswordless SSH connection to both machines
+
+```bash
+vagrant ssh mcuturaSW
+vagrant ssh mcuturaS
+```
+
+#### Verify correct configuration of the cluster
+
+```bash
+kubectl get nodes -o wide
+
+ip a show eth1
+```
+
+#### Stop the cluster
+
+```bash
+vagrant halt
 ```
 
 ---
