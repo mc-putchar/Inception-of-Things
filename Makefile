@@ -13,6 +13,8 @@ VM_IMG := $(VM_IMGDIR)/iot.qcow2
 
 ISO_DIR := ${HOME}/sgoinfre/iso
 
+HOST_SSH_PORT := 2242
+
 ifeq ($(ARCH), x86_64)
 ISO_FILE := $(ISO_DIR)/ubuntu-22.04.5-live-server-amd64.iso
 ISO_URL := https://releases.ubuntu.com/22.04/ubuntu-22.04.5-live-server-amd64.iso
@@ -48,7 +50,10 @@ help:	# Show this helpful message
 
 
 ##### VM xml import #####
-.PHONY: connect import clean
+.PHONY: start connect import clean
+
+start:	# Start Host VM
+	virsh $(SESSION) start $(VM_NAME)
 
 connect:	# Connect to Host VM
 	virsh $(SESSION) console $(VM_NAME)
@@ -81,9 +86,12 @@ install: isofs $(VM_CLOUDIMG)	# Install VM from CloudImg
 		--disk path=host/seed.iso,device=cdrom,bus=sata \
 		--filesystem $$(pwd),iot,type=mount,mode=squash \
 		--os-variant ubuntu22.04 --network user --graphics none \
+		--network none \
+		--qemu-commandline="-netdev user,id=net0,hostfwd=tcp::$(HOST_SSH_PORT)-:22 -device virtio-net-pci,netdev=net0" \
 		--console pty,target_type=serial \
 		--boot hd,cdrom \
-		--import
+		--import \
+		--noautoconsole
 
 isofs:	# Create the Cloud-Init ISO
 	sed "s|<HASH>|$$(openssl passwd -6)|g" host/user-data.yaml > host/user-data
