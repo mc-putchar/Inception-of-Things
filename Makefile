@@ -55,6 +55,9 @@ help:	# Show this helpful message
 start:	# Start Host VM
 	virsh $(SESSION) start $(VM_NAME)
 
+stop:	# Stop Host VM
+	virsh $(SESSION) destroy $(VM_NAME)
+
 connect:	# Connect to Host VM
 	virsh $(SESSION) console $(VM_NAME)
 
