@@ -14,6 +14,7 @@ VM_IMG := $(VM_IMGDIR)/iot.qcow2
 ISO_DIR := ${HOME}/sgoinfre/iso
 
 HOST_SSH_PORT := 2242
+PORT_FORWARDING := "hostfwd=tcp::$(HOST_SSH_PORT)-:22,hostfwd=tcp::8888-:8888,hostfwd=tcp::8080-:8080"
 
 ifeq ($(ARCH), x86_64)
 ISO_FILE := $(ISO_DIR)/ubuntu-22.04.5-live-server-amd64.iso
@@ -46,7 +47,8 @@ help:	# Show this helpful message
 	@awk 'BEGIN { FS = ":.*#"; \
 	printf "$(GRN)$(NAME)$(NC)\nby: $(AUTHORS)\t@$(GRN)42 Berlin$(NC)\n\n"; \
 	printf "Usage:\n\t$(CYB)make $(MAG)<target>$(NC)\n" } \
-	/^[A-Za-z_0-9-]+:.*?#/ { printf "$(MAB)%-16s $(CYA)%s$(NC)\n", $$1, $$2}' Makefile
+	/^[A-Za-z_0-9-]+:.*?#/ { printf "$(MAB)%-16s $(CYA)%s$(NC)\n", $$1, $$2}' \
+	Makefile
 
 
 ##### VM xml import #####
@@ -58,7 +60,7 @@ start:	# Start Host VM
 stop:	# Stop Host VM
 	virsh $(SESSION) destroy $(VM_NAME)
 
-connect:	# Connect to Host VM
+connect:	# Connect to Host VM console
 	virsh $(SESSION) console $(VM_NAME)
 
 import: $(VM_IMG) | $(ISO_FILE)	# Import Host VM
@@ -89,8 +91,7 @@ install: isofs $(VM_CLOUDIMG)	# Install VM from CloudImg
 		--disk path=host/seed.iso,device=cdrom,bus=sata \
 		--filesystem $$(pwd),iot,type=mount,mode=squash \
 		--os-variant ubuntu22.04 --network user --graphics none \
-		--network none \
-		--qemu-commandline="-netdev user,id=net0,hostfwd=tcp::$(HOST_SSH_PORT)-:22 -device virtio-net-pci,netdev=net0" \
+		--qemu-commandline="-netdev user,id=net0,$(PORT_FORWARDING) -device virtio-net-pci,netdev=net0" \
 		--console pty,target_type=serial \
 		--boot hd,cdrom \
 		--import \

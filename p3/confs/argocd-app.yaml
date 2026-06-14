@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: playground-gitops
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "https://github.com/mc-putchar/mcutura-42playground.git"
+    targetRevision: HEAD
+    path: apps/playground
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
