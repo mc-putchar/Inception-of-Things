@@ -133,7 +133,7 @@ vagrant ssh mcuturaSW
 vagrant ssh mcuturaS
 ```
 
-#### Verify correct configuration of the cluster
+#### Verify correct configuration of the cluster from within the server VM
 
 ```bash
 kubectl get nodes -o wide
@@ -208,6 +208,43 @@ curl http://192.168.56.110                       # for app3 (default)
 
 ---
 
+## P3
+
+### Install dependencies
+
+```bash
+./mnt/p3/scripts/setup.sh
+```
+
+Relog/reboot to apply changes.
+
+### Deploy the cluster
+
+```bash
+./mnt/p3/scripts/deploy.sh
+```
+
+### Verify availability from main host
+
+```bash
+curl http://localhost:8888
+```
+
+### [Optional] Access ArgoCD UI
+
+```bash
+# Print the initial admin password
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo;
+
+# Forward the ArgoCD server port to the host machine
+kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0
+```
+
+- Open the ArgoCD UI in the browser: `https://localhost:8080`  
+- Accept the self-signed certificate.  
+- Login with username: `admin` and the password obtained in the previous step.  
+
+---
+
 ## TODO:
-- P3
 - Bonus
