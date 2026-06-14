@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app3-config
+data:
+  app3-flask.py: |
+    from flask import Flask
+    app = Flask(__name__)
+
+    @app.route('/')
+    def home():
+        return '<h1>Welcome to App3</h1>\n'
+
+    if __name__ == '__main__':
+        app.run(host='0.0.0.0', port=80)
+
