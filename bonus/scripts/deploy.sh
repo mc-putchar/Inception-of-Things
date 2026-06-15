@@ -154,7 +154,7 @@ helm install gitlab gitlab/gitlab \
   --timeout 900s
 
 echo "Waiting for GitLab Webservice to become ready..."
-kubectl rollout status deployment/gitlab-webservice-default -n gitlab --timeout=15m
+kubectl rollout status deployment/gitlab-webservice-default -n gitlab --timeout=25m
 
 kubectl apply -f ~/mnt/bonus/confs/argocd-app.yaml
 
