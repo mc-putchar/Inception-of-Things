@@ -1,0 +1,10 @@
+persistence:
+  data:
+    size: 5Gi
+  meta:
+    size: 250Mi
+
+garage:
+  rpc_bind_addr: "[::]:3901"
+  s3_api_bind_addr: "[::]:3900"
+  s3_web_bind_addr: "[::]:3902"
