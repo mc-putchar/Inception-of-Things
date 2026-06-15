@@ -12,10 +12,11 @@ We use `libvirt` (Virtual Machine Manager) as our hypervisor.
 
 > Name: IoT-host  
 > OS: Ubuntu Server LTS 22.04.5  
-> Memory: 8192 MB  
+> Memory: 12288 MB (squeezing GitLab into 12GiB :| )  
 > CPUs: 8  
 > Storage: qcow2 disk (25 GB)  
 > Network: User (bridge not possible in our user session)  
+> Ports forwarded: 2242 (SSH), 8888 (Kubernetes API), 8080 (ArgoCD), 8081 (GitLab)
 
 ---
 
@@ -25,6 +26,9 @@ Hands-off automated setup of the Virtual Machine:
 
 ```bash
 make install
+
+# Connect to the VM console
+make connect
 ```
 
 Login into the host VM with user: `inception` and password that you provided at the start  
@@ -71,7 +75,7 @@ make connect
 
 Login using your VM credentials.  
 
-*Note: You can use `Ctrl+[` to exit the VM console.*  
+*Note: You can use `Ctrl+]` to exit the VM console.*  
 
 Update repositories and install core packages:  
 
@@ -213,7 +217,7 @@ curl http://192.168.56.110                       # for app3 (default)
 ### Install dependencies
 
 ```bash
-./mnt/p3/scripts/setup.sh
+~/mnt/p3/scripts/setup.sh
 ```
 
 Relog/reboot to apply changes.
@@ -221,7 +225,7 @@ Relog/reboot to apply changes.
 ### Deploy the cluster
 
 ```bash
-./mnt/p3/scripts/deploy.sh
+~/mnt/p3/scripts/deploy.sh
 ```
 
 ### Verify availability from main host
@@ -232,19 +236,86 @@ curl http://localhost:8888
 
 ### [Optional] Access ArgoCD UI
 
-```bash
-# Print the initial admin password
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo;
-
-# Forward the ArgoCD server port to the host machine
-kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0
-```
-
 - Open the ArgoCD UI in the browser: `https://localhost:8080`  
 - Accept the self-signed certificate.  
-- Login with username: `admin` and the password obtained in the previous step.  
+- Login with username: `admin` and the generated password.  
+
+```bash
+# Print the admin password
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo;
+```
 
 ---
 
-## TODO:
-- Bonus
+## Bonus
+
+### Install requirements
+
+```bash
+~/mnt/bonus/scripts/setup.sh
+```
+
+If Docker was installed in this step (i.e. P3 was skipped) - relog/reboot to apply user group changes.
+
+### Setup secrets
+
+For simplicity, instead of a vault, we use .env file to store secrets.  
+You can configure them manually and ensure to fill in all the required values in `credentials.env` before proceeding.  
+
+```bash
+cp ~/mnt/bonus/confs/credentials.env.example ~/mnt/bonus/confs/credentials.env
+# Edit the file ~/mnt/bonus/confs/credentials.env and 
+# fill in the required values,
+# then save it.
+```
+
+OR Run a script that will do it for you.  
+
+```bash
+~/mnt/bonus/scripts/secretary.sh
+```
+
+### Deploy the cluster
+
+```bash
+~/mnt/bonus/scripts/deploy.sh
+```
+
+### Verify availability from main host
+
+```bash
+curl http://gitlab.127.0.0.1.nip.io:8081
+```
+
+### Create repository
+
+```bash
+~/mnt/bonus/scripts/create_repo.sh
+```
+
+Push the playground repository to the created GitLab repository.  
+
+### Access services in the browser
+
+#### GitLab
+
+- Open the GitLab UI in the browser: `http://gitlab.127.0.0.1.nip.io:8081`  
+- Login with username: `root` and the assigned password (you can find it in the .env file).  
+
+#### ArgoCD
+
+- Open the ArgoCD UI in the browser: `https://localhost:8080`  
+- Accept the self-signed certificate.  
+- Login with username: `admin` and the generated password.  
+
+```bash
+# Print the admin password
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo;
+```
+
+
+#### Playground app
+
+- Open the app in the browser: `http://localhost:8888`  
+
+---

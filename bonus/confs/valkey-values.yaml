@@ -1,0 +1,10 @@
+dataStorage:
+  enabled: true
+  size: 2Gi
+metrics:
+  enabled: false
+auth:
+  enabled: true
+  aclUsers:
+    default:
+      permissions: "~* &* +@all"

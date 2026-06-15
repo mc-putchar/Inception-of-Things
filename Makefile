@@ -8,13 +8,14 @@ HOSTNAME := iot-host
 SESSION := --connect qemu:///session
 VM_NAME := IoT-host
 
-VM_IMGDIR := ${HOME}/sgoinfre/VMs
+VM_IMGDIR := ${HOME}/goinfre/VMs
+# VM_IMGDIR := ${HOME}/sgoinfre/VMs
 VM_IMG := $(VM_IMGDIR)/iot.qcow2
 
 ISO_DIR := ${HOME}/sgoinfre/iso
 
 HOST_SSH_PORT := 2242
-PORT_FORWARDING := "hostfwd=tcp::$(HOST_SSH_PORT)-:22,hostfwd=tcp::8888-:8888,hostfwd=tcp::8080-:8080"
+PORT_FORWARDING := "hostfwd=tcp::$(HOST_SSH_PORT)-:22,hostfwd=tcp::8888-:8888,hostfwd=tcp::8080-:8080,hostfwd=tcp::8081-:8081"
 
 ifeq ($(ARCH), x86_64)
 ISO_FILE := $(ISO_DIR)/ubuntu-22.04.5-live-server-amd64.iso
@@ -86,7 +87,7 @@ clean:	# Remove Host VM and its storage
 .PHONY: install isofs
 
 install: isofs $(VM_CLOUDIMG)	# Install VM from CloudImg
-	virt-install $(SESSION) --name $(VM_NAME) --memory 8192 --vcpus 8 \
+	virt-install $(SESSION) --name $(VM_NAME) --memory 12288 --vcpus 8 \
 		--disk path=$(VM_CLOUDIMG),format=qcow2,bus=virtio \
 		--disk path=host/seed.iso,device=cdrom,bus=sata \
 		--filesystem $$(pwd),iot,type=mount,mode=squash \
